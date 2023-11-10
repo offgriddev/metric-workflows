@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Gather Complexity Metrics
-        uses: ./.github/actions/complexity-metrics
+        uses: offgriddev/metric-workflows/.github/actions/complexity-metrics
 
   terraform-metrics:
     runs-on: ubuntu-20.04
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Gather Terraform Metrics
-        uses: ./.github/actions/terraform-metrics
+        uses: offgriddev/metric-workflows/.github/actions/terraform-metrics
   
   publish-to-s3:
     runs-on: ubuntu-20.04
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Publish Metrics to S3
-        uses: ./.github/actions/publish-to-s3
+        uses: offgriddev/metric-workflows/.github/actions/publish-to-s3
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
