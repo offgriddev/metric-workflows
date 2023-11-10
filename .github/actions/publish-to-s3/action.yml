@@ -5,7 +5,9 @@ inputs:
     required: true
   aws-secret-access-key:
     required: true
-  environment:
+  s3-bucket-name:
+    required: true
+  region:
     required: true
 runs:
   using: 'composite'
@@ -28,10 +30,10 @@ runs:
       with:
         aws-access-key-id: ${{ inputs.aws-access-key-id }}
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: us-east-1
+        aws-region: ${{ inputs.region }}
     
     - name: Publish Commit Analytics
       id: publish
       shell: bash
       run: |
-        aws s3 sync complexity-assessment s3://${{ inputs.s3_bucket_name }} --cache-control max-age=31536000
+        aws s3 sync complexity-assessment s3://${{ inputs.s3-bucket-name }} --cache-control max-age=31536000
