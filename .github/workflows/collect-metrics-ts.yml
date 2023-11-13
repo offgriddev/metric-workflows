@@ -1,0 +1,88 @@
+name: Complexity Analysis for TypeScript
+on:
+  workflow_call:
+    inputs:
+      s3-bucket-name:
+        required: true
+        type: string
+      region:
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+jobs:
+  complexity-metrics:
+    runs-on: ubuntu-20.04
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - uses: actions/checkout@v3
+  
+      - name: Generate Logical Complexity Metrics
+        id: metrics
+        uses: offgriddev/cyclomatic-ts-action@main
+        with:
+          github_token: ${{ github.token }}
+          working_directory: src
+          ecma_script_target: ES2021
+          event: ${{ toJson(github.event) }}
+  
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: compreports
+          path: complexity-assessment
+
+  terraform-metrics:
+    runs-on: ubuntu-20.04
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate Terraform Metrics
+        id: metrics
+        uses: offgriddev/tf-metrics-action@main
+        with:
+          github_token: ${{ github.token }}
+          event: ${{ toJson(github.event) }}
+  
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfreports
+          path: complexity-assessment
+  
+  publish-to-s3:
+    runs-on: ubuntu-20.04
+    needs: ['complexity-metrics', 'terraform-metrics']
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download turbo artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: tfreports
+          path: complexity-assessment
+  
+      - name: Download turbo artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: compreports
+          path: complexity-assessment
+  
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.region }}
+      
+      - name: Publish Commit Analytics
+        id: publish
+        shell: bash
+        run: |
+          aws s3 sync complexity-assessment s3://${{ inputs.s3-bucket-name }} --cache-control max-age=31536000
+  
