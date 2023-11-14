@@ -23,7 +23,7 @@ jobs:
   
       - name: Generate Logical Complexity Metrics
         id: metrics
-        uses: offgriddev/cyclomatic-js-action@main
+        uses: offgriddev/cyclomatic-js-action@jesse/file-export
         with:
           github_token: ${{ github.token }}
           event: ${{ toJson(github.event) }}
