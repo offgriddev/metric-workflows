@@ -14,7 +14,7 @@ on:
         type: string
       application-directory:
         description: working directory for JavaScript source files, defaults to './src'
-        default: './src'
+        default: '.'
         type: string
       
     secrets:
