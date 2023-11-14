@@ -44,7 +44,7 @@ jobs:
 
       - name: Generate Terraform Metrics
         id: metrics
-        uses: offgriddev/tf-metrics-action@main
+        uses: offgriddev/tf-metrics-action@jesse/metrics
         with:
           github_token: ${{ github.token }}
           event: ${{ toJson(github.event) }}
