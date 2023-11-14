@@ -8,6 +8,15 @@ on:
       region:
         required: true
         type: string
+      terraform-directory:
+        description: working directory for terraform files, defaults to './terraform'
+        default: './terraform'
+        type: string
+      application-directory:
+        description: working directory for JavaScript source files, defaults to './src'
+        default: './src'
+        type: string
+      
     secrets:
       aws-access-key-id:
         required: true
@@ -29,6 +38,7 @@ jobs:
           event: ${{ toJson(github.event) }}
           excludedFileTypes: __mocks__|.test.js|Test.js|dist
           includedFileTypes: .js$
+          working_directory: ${{ inputs.application-directory }}
   
       - name: Upload Report
         uses: actions/upload-artifact@v3
@@ -48,6 +58,7 @@ jobs:
         with:
           github_token: ${{ github.token }}
           event: ${{ toJson(github.event) }}
+          working_directory: ${{ inputs.terraform-directory }}
   
       - name: Upload Report
         uses: actions/upload-artifact@v3
