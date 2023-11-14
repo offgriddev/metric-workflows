@@ -10,7 +10,7 @@ on:
         type: string
       terraform-directory:
         description: working directory for terraform files, defaults to './terraform'
-        default: './terraform'
+        default: '.'
         type: string
       application-directory:
         description: working directory for JavaScript source files, defaults to './src'
