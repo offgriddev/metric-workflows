@@ -10,11 +10,11 @@ on:
         type: string
       terraform-directory:
         description: working directory for terraform files, defaults to './terraform'
-        default: '.'
+        default: "."
         type: string
       application-directory:
         description: working directory for JavaScript source files, defaults to './src'
-        default: '.'
+        default: "."
         type: string
     secrets:
       aws-access-key-id:
@@ -28,7 +28,7 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - uses: actions/checkout@v3
-  
+
       - name: Generate Logical Complexity Metrics
         id: metrics
         uses: offgriddev/cyclomatic-ts-action@main
@@ -37,9 +37,9 @@ jobs:
           ecma_script_target: ES2021
           event: ${{ toJson(github.event) }}
           working_directory: ${{ inputs.application-directory }}
-  
+
       - name: Upload Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: compreports
           path: complexity-assessment
@@ -57,41 +57,40 @@ jobs:
           github_token: ${{ github.token }}
           event: ${{ toJson(github.event) }}
           working_directory: ${{ inputs.terraform-directory }}
-  
+
       - name: Upload Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tfreports
           path: complexity-assessment
-  
+
   publish-to-s3:
     runs-on: ubuntu-20.04
-    needs: ['complexity-metrics', 'terraform-metrics']
+    needs: ["complexity-metrics", "terraform-metrics"]
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Download turbo artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: tfreports
           path: complexity-assessment
-  
+
       - name: Download turbo artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: compreports
           path: complexity-assessment
-  
+
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ inputs.region }}
-      
+
       - name: Publish Commit Analytics
         id: publish
         shell: bash
         run: |
           aws s3 sync complexity-assessment s3://${{ inputs.s3-bucket-name }} --cache-control max-age=31536000
-  
